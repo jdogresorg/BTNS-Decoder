@@ -1,0 +1,93 @@
+<html>
+<head>
+	<title>Transaction Decoder</title>
+	<meta name="robots" content="index, follow">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>	
+    <script type="text/javascript" src="xcp.js"></script>
+    <script type="text/javascript" src="btns.js"></script>
+    <script type="text/javascript" src="transaction.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 offset-lg-3">
+				<div class="card mt-3">
+	                <div class="card-title mb-0 p-1 fw-bold border-bottom text-center">
+	                    <i class="fa fa-lg fa-info-circle"></i> Broadcast Token Naming System (BTNS) Transaction Decoder
+	                </div>
+					<div class="card-body">
+						Paste your transaction hash, hex, or BTNS command to decode.
+						<textarea class="form-control" id="tx_data" rows="5" placeholder=""></textarea>
+						<div class="d-grid mt-2">
+							<button type="button" class="btn btn-primary" id="decodeButton">Decode Transaction</button>
+						</div>
+					</div>
+				</div>
+				<div class="card mt-3 mb-3">
+	                <div class="card-title mb-0 p-1 fw-bold border-bottom text-center">
+	                    <i class="fa fa-lg fa-info-circle"></i> Decoded Data
+	                </div>
+					<div class="card-body">
+						<h3>BTNS Data</h3>
+						<pre><code class="language-css" id="btns-data"></code></pre>
+						<div id="xcp-data-wrapper" style="display:none;">
+							<h3>XCP Data</h3>
+							<pre><code class="language-css" id="xcp-data"></code></pre>
+						</div>
+					</div>
+				</div>				
+			</div>
+		</div>
+	</div>
+    <!-- Include this last so that bitcore is already defined -->
+    <script>
+
+    	function processDecodeRequest(data=null){
+    		if(/\|/.test(data)){
+    			var btns = decodeBTNSTransaction(data);
+    			$('#btns-data').html(JSON.stringify(btns, null, 4));
+    		} else {
+				decodeTransaction('mainnet', data, function(tx){
+			        console.log('tx=',tx);
+					if(tx){
+						if(tx.xcp){
+							$('#xcp-data-wrapper').show();
+							$('#xcp-data').html(JSON.stringify(tx.xcp, null, 4));							
+						}
+						if(tx.btns)
+			    			$('#btns-data').html(JSON.stringify(tx.btns, null, 4));
+					}
+				});
+    		}
+    	}
+
+		$(document).ready(function(){
+
+			// When user clicks Button, try to decode the tx
+			$('#decodeButton').click(function(e){
+				var val = $('#tx_data').val();
+				$('#btns-data').html('');
+				$('#xcp-data-wrapper').hide();
+				$('#xcp-data').html('');
+				if(val!=''){
+					processDecodeRequest(val);
+				}
+			});
+
+			// TODO
+			// large broadcast = 29b362ef55d9dc10bde6e110b62772a466f6acc3267f80e782e59e5cc1e97411
+			// MPMA send
+			// var tx_hash = '230817a4daa5ee42955064e347dd68db918154a8f50d67dccedabeef4bf89763';
+			// var tx_hash  = '0100000001f1bf9b0ee3b7033fbf03b04da4a2a03ed8ed74d72232f4d069706c9074a70a9f020000006b4830450221008fbb92fdea28199ebb9257322e46c37e4d805e0de3750a6ed8d583c10ae7b84502206e6f2573576b0a8b937c04176bc0307d57cc935e4c86d9d5db21f3dd13923bc001210335972f0ad82df9da8e5fa3ee613eeae83c191d359e4098dd5613cd2bf395f74effffffff036c2a0000000000001976a91486a9090f436d2217ea80ed63a2b1216b1f94c9ce88ac6c2a0000000000004751210335972f0ad82df9da8e5fa3ee613eeae83c191d359e4098dd5613cd2bf395f74e211c434e545250525459000000000000000006ca029900000000000001f50000000052aef4141500000000001976a914b5ff17c37643c359832a55220b19faf72969c95b88ac00000000'
+
+		});
+	</script>
+</body>
+</html>
