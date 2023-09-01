@@ -49,7 +49,15 @@ function decodeBTNSTransaction(data=null){
 		prefix  = String(command).split(':')[0],
 		params  = String(command).replace(prefix + ':','').split('|'),
 		action  = String(params[0]).toUpperCase(),
-		version = parseInt(params[1]);
+		version = parseInt(params[1]); 
+	// Add support for parsing old BTNS actions
+	if(action=='DEPLOY')   action='ISSUE';
+	if(action=='TRANSFER') action='SEND';
+	// Add support for parsing old BTNS commands without a version (default to 0)
+	if(isNaN(version)){
+		version = 0;
+		params.splice(1,0,version);
+	}
 	// Trim action and version from params array
 	params.splice(0,2);
 	if(BTNS.PREFIXES.indexOf(prefix.toLowerCase())!=-1 && BTNS.ACTIONS[action] && BTNS.ACTIONS[action][version]){
