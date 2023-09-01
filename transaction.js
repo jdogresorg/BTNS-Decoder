@@ -63,31 +63,31 @@ function decodeTransaction(network=null, tx_hash=null, callback=null){
         if(typeof o.results === "object")
             tx.btc = o.results;
         decodeXCPTransaction(network, tx.btc, function(xcp){ 
-        	tx.xcp = xcp;
-        	tx.btns = decodeBTNSTransaction(xcp);
-	        if(typeof callback === 'function')
-	            callback(tx);
+            tx.xcp = xcp;
+            tx.btns = decodeBTNSTransaction(xcp);
+            if(typeof callback === 'function')
+                callback(tx);
         });
     }
     // Make call to Bitcoin Core to decode the TX
     if(tx_hash.length==64)
-	    getRawTransaction(network, tx_hash, cb);
-	else
-	    decodeRawTransaction(network, tx_hash, cb);
+        getRawTransaction(network, tx_hash, cb);
+    else
+        decodeRawTransaction(network, tx_hash, cb);
 }
 
 // Handle getting source address for a given transaction
 function getSourceAddress(network=null, vin=null, callback=null){
-	getRawTransaction(network, vin.txid, function(o){
-		var addr = false,
-			tx   = o.results;
-		tx.vout.forEach(function(out){
-			if(vin.vout==out.n)
-				addr = out.scriptPubKey.address;
-		});
+    getRawTransaction(network, vin.txid, function(o){
+        var addr = false,
+            tx   = o.results;
+        tx.vout.forEach(function(out){
+            if(vin.vout==out.n)
+                addr = out.scriptPubKey.address;
+        });
         if(typeof callback === 'function')
             callback(addr);
-	});
+    });
 }
 
 // Convert BINARY to HEX
@@ -164,55 +164,55 @@ function ascii2hex(str){
 
 // Convert HEX to DECIMAL
 function hex2Dec(s){
-	var i, j, digits = [0], carry;
-	for(i = 0; i < s.length; i += 1){
-  		carry = parseInt(s.charAt(i), 16);
-  		for(j = 0; j < digits.length; j += 1){
-		    digits[j] = digits[j] * 16 + carry;
-		    carry = digits[j] / 10 | 0;
-		    digits[j] %= 10;
-		}
-		while(carry > 0){
-		    digits.push(carry % 10);
-			carry = carry / 10 | 0;
-  		}
-	}
-	return digits.reverse().join('');
+    var i, j, digits = [0], carry;
+    for(i = 0; i < s.length; i += 1){
+          carry = parseInt(s.charAt(i), 16);
+          for(j = 0; j < digits.length; j += 1){
+            digits[j] = digits[j] * 16 + carry;
+            carry = digits[j] / 10 | 0;
+            digits[j] %= 10;
+        }
+        while(carry > 0){
+            digits.push(carry % 10);
+            carry = carry / 10 | 0;
+          }
+    }
+    return digits.reverse().join('');
 }
 
 // Get asset name from HEX
 function getAssetName(hex){
-	// Assume ID is asset
-	var id = parseInt(hex, 16);
+    // Assume ID is asset
+    var id = parseInt(hex, 16);
     if(id == 0) return 'BTC';
     if(id == 1) return 'XCP';
-	// Asset is numeric or subasset, return numeric name
-	if(id >= 95428956661682177)
-		return 'A' + BigInt('0x'+hex).toString(10);
-	// a few very long asset names, would need big
+    // Asset is numeric or subasset, return numeric name
+    if(id >= 95428956661682177)
+        return 'A' + BigInt('0x'+hex).toString(10);
+    // a few very long asset names, would need big
     if(id > 9007199254740991) 
-    	return 'max int error';
+        return 'max int error';
     let b26_digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; 
     let n = id;
     let name = '';
     do {
-    	let mod = n % 26;
-     	name = b26_digits[mod] + name;
-     	n -= mod;
-     	n /= 26;
+        let mod = n % 26;
+         name = b26_digits[mod] + name;
+         n -= mod;
+         n /= 26;
     } while (n > 0);
     return name;
 }
 
 // Convert HEX to an address
 function hex2address(hex){
-	let version_byte = hex.substring(0,2);
-	if (version_byte == '00' || version_byte == '05') {
-  	return hex2base58addr(hex);
-	}
-	if(version_byte == '80')
-  		return hex2bech32addr(hex); 
-	return 'cannot decode address';
+    let version_byte = hex.substring(0,2);
+    if (version_byte == '00' || version_byte == '05') {
+      return hex2base58addr(hex);
+    }
+    if(version_byte == '80')
+          return hex2bech32addr(hex); 
+    return 'cannot decode address';
 }
 
 // Convert HEX to Base58 address
@@ -226,14 +226,14 @@ function hex2base58addr(hex) {
     let decimal = BigInt('0x' + hex);
     let output = '';
     while (decimal > 0) {
-    	let rem = decimal % base;
-    	decimal = BigInt(decimal / base);
-    	output = ALPHABET[Number(rem)] + output;
+        let rem = decimal % base;
+        decimal = BigInt(decimal / base);
+        output = ALPHABET[Number(rem)] + output;
     }
     //Leading 00's must be converted to 1's
     let numLeadingZeros = Math.floor(hex.match(/^0+/)[0].length / 2);
     for (let i = 0; i < numLeadingZeros; i++) {
-    	output = "1" + output;
+        output = "1" + output;
     }
     return output;
 }
@@ -268,26 +268,26 @@ function hex2bech32addr(hex) {
 // Copied from https://github.com/sipa/bech32/blob/master/ref/javascript/bech32.js
 // Modified to assume BECH32 encoding (not BECH32M)
 function bech32_checksum(hrp, data) {
-	var values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
-	var mod = polymod(values) ^ 1;
-	var ret = [];
-	for(var p = 0; p < 6; ++p)
-		ret.push((mod >> 5 * (5 - p)) & 31);
-	return ret;
+    var values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
+    var mod = polymod(values) ^ 1;
+    var ret = [];
+    for(var p = 0; p < 6; ++p)
+        ret.push((mod >> 5 * (5 - p)) & 31);
+    return ret;
 }
 
 function polymod(values) {
-	const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-	var chk = 1;
-	for(var p = 0; p < values.length; ++p){
-		var top = chk >> 25;
-		chk = (chk & 0x1ffffff) << 5 ^ values[p];
-		for(var i = 0; i < 5; ++i){
-    		if((top >> i) & 1)
-				chk ^= GENERATOR[i];
-	  	}
-	}
-	return chk;
+    const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+    var chk = 1;
+    for(var p = 0; p < values.length; ++p){
+        var top = chk >> 25;
+        chk = (chk & 0x1ffffff) << 5 ^ values[p];
+        for(var i = 0; i < 5; ++i){
+            if((top >> i) & 1)
+                chk ^= GENERATOR[i];
+          }
+    }
+    return chk;
 }
 
 function hrpExpand(hrp) {
