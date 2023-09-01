@@ -8,7 +8,7 @@
 function btcRequest(network, data, callback){
     var net  = (network=='testnet') ? 'testnet' : 'mainnet',
         host = (net=='testnet') ? 'testnet.xchain.io' : 'xchain.io',
-        url  = 'http://' + host + '/api/btc_proxy';
+        url  = 'https://' + host + '/api/btc_proxy';
     // Send request to server, process response
     $.ajax({
         type: "POST",
