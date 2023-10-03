@@ -214,6 +214,9 @@ function decodeXCPTransaction(network=null, tx=null, callback=null){
             if(typeof callback === 'function')
                 callback(o);
         });
+    } else {
+        if(typeof callback === 'function')
+            callback();
     }
 }
 
