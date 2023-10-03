@@ -26,6 +26,15 @@
                     <div class="card-body">
                         Paste your transaction hash, hex, or BTNS command to decode.
                         <textarea class="form-control" id="tx_data" rows="5" placeholder=""></textarea>
+                        <div class="mt-2 row">
+                            <label for="network" class="col-sm-2 col-form-label">Network</label>
+                            <div class="col-sm-10">
+                                <select class="form-select" aria-label="Network" name="network" id="network">
+                                  <option value="mainnet" selected>Mainnet</option>
+                                  <option value="testnet">Testnet</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="d-grid mt-2">
                             <button type="button" class="btn btn-primary" id="decodeButton">Decode Transaction</button>
                         </div>
@@ -50,12 +59,12 @@
     <!-- Include this last so that bitcore is already defined -->
     <script>
 
-        function processDecodeRequest(data=null){
+        function processDecodeRequest(network=null, data=null){
             if(/\|/.test(data)){
                 var btns = decodeBTNSTransaction(data);
                 $('#btns-data').html(JSON.stringify(btns, null, 4));
             } else {
-                decodeTransaction('mainnet', data, function(tx){
+                decodeTransaction(network, data, function(tx){
                     console.log('tx=',tx);
                     if(tx){
                         if(tx.xcp){
@@ -73,13 +82,13 @@
 
             // When user clicks Button, try to decode the tx
             $('#decodeButton').click(function(e){
-                var val = $('#tx_data').val();
+                var net  = $('#network').val(),
+                    data = $('#tx_data').val();
                 $('#btns-data').html('');
                 $('#xcp-data-wrapper').hide();
                 $('#xcp-data').html('');
-                if(val!=''){
-                    processDecodeRequest(val);
-                }
+                if(data!='')
+                    processDecodeRequest(net, data);
             });
 
             // TODO
