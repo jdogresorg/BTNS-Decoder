@@ -93,6 +93,7 @@ function decodeXCPTransaction(network=null, tx=null, callback=null){
                   msg = msg.substring(2);
             }
             type = parseInt(id, 16);
+            console.log('type id=',type);
             // Classic Send
             if(type==0){
                 o.type        = 'send';
@@ -150,7 +151,7 @@ function decodeXCPTransaction(network=null, tx=null, callback=null){
                 o.address         = (addr.length) ? hex2address(addr) : source;
             }
             // Issuance
-            if(type==20){
+            if(type==20||type==22){
                 o.type                 = 'issuance';
                 o.source               = source;
                 o.asset                = getAssetName(msg.substring(0,16));
@@ -164,12 +165,12 @@ function decodeXCPTransaction(network=null, tx=null, callback=null){
                 // o.description_length   = parseInt(msg.substring(52,54), 16);
                 // o.description          = hex2ascii(msg.substring(54));
                 // NEW Format - LOCK and RESET added in block 753500
-                o.lock                    = parseInt(msg.substring(34,36), 16);
+                o.lock                 = parseInt(msg.substring(34,36), 16);
                 o.reset                = parseInt(msg.substring(36,38), 16);
                 o.description          = hex2ascii(msg.substring(38));
             }
             // Issuance (subasset)
-            if(type==21){ 
+            if(type==21||type==23){ 
                 o.type                 = 'issuance';
                 o.source               = source;
                 o.asset                = getAssetName(msg.substring(0,16));
@@ -180,7 +181,7 @@ function decodeXCPTransaction(network=null, tx=null, callback=null){
                 o.lock                    = parseInt(msg.substring(34,36), 16);
                 o.reset                = parseInt(msg.substring(36,38), 16);
                 // Parse in variable-length subasset name and description
-                var    x   = 38; // FORMAT (OLD=34, NEW=38)
+                var x   = 38; // FORMAT (OLD=34, NEW=38)
                     off = (x+2)+(parseInt(msg.substring(x,(x+2)), 16)*2),
                     sub = hex2subasset(msg.substring((x+2),off));
                 o.asset_longname       = sub;
